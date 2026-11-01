@@ -20,8 +20,8 @@
   --team-townsfolk-glow: rgba(37, 99, 235, 0.45);
   --team-outsider: #0891b2;
   --team-outsider-glow: rgba(8, 145, 178, 0.45);
-  --team-minion: #d97706;
-  --team-minion-glow: rgba(217, 119, 6, 0.45);
+  --team-minion: #e11d48;
+  --team-minion-glow: rgba(225, 29, 72, 0.45);
   --team-demon: #dc2626;
   --team-demon-glow: rgba(220, 38, 38, 0.55);
   --team-traveler: #9333ea;
@@ -484,7 +484,7 @@ body {
 }
 
 .character-token.minion {
-  border-color: #f59e0b;
+  border-color: #f43f5e;
   box-shadow: 0 0 14px var(--team-minion-glow), var(--shadow-token);
 }
 
@@ -507,53 +507,59 @@ body {
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.75));
 }
 
-/* Dead Shroud Overlay */
-.dead-shroud-overlay {
+/* Dead Player: Greyed out version of the existing icon and circle */
+.character-token.is-dead {
+  border-color: #4b4b4b !important;
+  background: radial-gradient(circle at 35% 35%, #181512 0%, #0a0908 95%) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8), inset 0 2px 4px rgba(255, 255, 255, 0.04) !important;
+  animation: none !important;
+}
+
+.character-token.is-dead .token-image {
+  filter: grayscale(100%) brightness(0.65) contrast(0.85);
+  opacity: 0.55;
+}
+
+.player-seat-node:hover .character-token.is-dead {
+  border-color: #6b6b6b !important;
+}
+
+.player-seat-node:hover .character-token.is-dead .token-image {
+  opacity: 0.8;
+  filter: grayscale(85%) brightness(0.8);
+}
+
+/* Dead Vote Indicator */
+.dead-vote-marker {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  bottom: -4px;
+  right: -4px;
+  width: 23px;
+  height: 23px;
   border-radius: 50%;
-  background: rgba(15, 12, 10, 0.65);
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
+  transition: all 0.25s ease;
+  z-index: 25;
 }
 
-.death-ribbon-img {
-  width: 78px;
-  height: 78px;
-  object-fit: contain;
-  opacity: 0.95;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.9));
+/* Active dead vote: golden/parchment indicator */
+.dead-vote-marker.ready {
+  background: radial-gradient(circle at 30% 30%, #ffd700 0%, #b45309 90%);
+  border: 1.5px solid #fef08a;
+  color: #1a0f00;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8), 0 0 8px rgba(245, 158, 11, 0.45);
 }
 
-/* Ghost Vote Token */
-.ghost-vote-marker {
-  position: absolute;
-  bottom: -5px;
-  right: -5px;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #ffd700 0%, #996515 90%);
-  border: 1.5px solid #fff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: #1a1005;
-  font-weight: bold;
-}
-
-.ghost-vote-marker.spent {
-  background: #374151;
-  border-color: #6b7280;
-  color: #9ca3af;
-  opacity: 0.6;
+/* Lost dead vote: greyed out version */
+.dead-vote-marker.spent {
+  background: radial-gradient(circle at 35% 35%, #27272a 0%, #111113 90%);
+  border: 1.5px solid #4b5563;
+  color: #6b7280;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  filter: grayscale(100%);
+  opacity: 0.45;
 }
 
 /* Status reminder tags on token */
@@ -810,7 +816,7 @@ body {
 
 .team-pill.townsfolk { background: rgba(37, 99, 235, 0.25); color: #93c5fd; border: 1px solid #3b82f6; }
 .team-pill.outsider { background: rgba(8, 145, 178, 0.25); color: #67e8f9; border: 1px solid #06b6d4; }
-.team-pill.minion { background: rgba(217, 119, 6, 0.25); color: #fde68a; border: 1px solid #f59e0b; }
+.team-pill.minion { background: rgba(225, 29, 72, 0.25); color: #fecdd3; border: 1px solid #f43f5e; }
 .team-pill.demon { background: rgba(220, 38, 38, 0.25); color: #fca5a5; border: 1px solid #ef4444; }
 
 .dossier-section {
@@ -1135,7 +1141,7 @@ body {
 
 .dist-chip.townsfolk { background: rgba(37, 99, 235, 0.2); border-color: #3b82f6; color: #93c5fd; }
 .dist-chip.outsider { background: rgba(8, 145, 178, 0.2); border-color: #06b6d4; color: #67e8f9; }
-.dist-chip.minion { background: rgba(217, 119, 6, 0.2); border-color: #f59e0b; color: #fde68a; }
+.dist-chip.minion { background: rgba(225, 29, 72, 0.2); border-color: #f43f5e; color: #fecdd3; }
 .dist-chip.demon { background: rgba(220, 38, 38, 0.2); border-color: #ef4444; color: #fca5a5; }
 
 .custom-roles-grid {
@@ -1205,7 +1211,7 @@ body {
 
 .roster-team-label.townsfolk { color: #60a5fa; }
 .roster-team-label.outsider { color: #38bdf8; }
-.roster-team-label.minion { color: #fbbf24; }
+.roster-team-label.minion { color: #fb7185; }
 .roster-team-label.demon { color: #f87171; }
 
 .roster-buttons-grid {
@@ -1232,7 +1238,7 @@ body {
 
 .roster-char-btn.townsfolk { border-left: 3px solid #3b82f6; }
 .roster-char-btn.outsider { border-left: 3px solid #06b6d4; }
-.roster-char-btn.minion { border-left: 3px solid #f59e0b; }
+.roster-char-btn.minion { border-left: 3px solid #f43f5e; }
 .roster-char-btn.demon { border-left: 3px solid #ef4444; }
 
 .roster-char-btn.grayed-out {

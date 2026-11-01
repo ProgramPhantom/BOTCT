@@ -1,14 +1,10 @@
 import React from 'react';
 import type { PlayerSeat } from '../types/game';
 import { getRoleById } from '../utils/gameSetup';
-import { Skull, Shield, Zap, Sparkles, Moon, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Zap, Sparkles, Moon } from 'lucide-react';
 
 interface CharacterDossierProps {
   seat: PlayerSeat | null;
-  onToggleAlive: (seatId: number) => void;
-  onToggleGhostVote: (seatId: number) => void;
-  onTogglePoison: (seatId: number) => void;
-  onToggleNominated: (seatId: number) => void;
   onClose: () => void;
 }
 
@@ -83,17 +79,13 @@ const STRATEGY_INSIGHTS: Record<string, { good: string; evil: string; logic: str
 
 export const CharacterDossier: React.FC<CharacterDossierProps> = ({
   seat,
-  onToggleAlive,
-  onToggleGhostVote,
-  onTogglePoison,
-  onToggleNominated,
   onClose,
 }) => {
   if (!seat) {
     return (
       <div className="botct-panel">
         <div className="panel-header">
-          <span className="panel-title">Character Dossier</span>
+          <span className="panel-title">Character </span>
         </div>
         <div style={{ textAlign: 'center', padding: '30px 10px', color: 'var(--color-parchment-muted)' }}>
           <Sparkles size={32} style={{ opacity: 0.3, marginBottom: '10px' }} />
@@ -114,7 +106,7 @@ export const CharacterDossier: React.FC<CharacterDossierProps> = ({
     <div className="botct-panel">
       <div className="panel-header">
         <span className="panel-title">
-          Seat #{seat.id + 1} Dossier
+          Seat #{seat.id + 1}
         </span>
         <button
           onClick={onClose}
@@ -137,9 +129,7 @@ export const CharacterDossier: React.FC<CharacterDossierProps> = ({
           />
           <div className="dossier-header-info">
             <h2>{role?.name || seat.characterId}</h2>
-            <div style={{ fontFamily: 'var(--font-serif)', fontSize: '0.8rem', color: 'var(--color-parchment)' }}>
-              Seat Position: #{seat.id + 1}
-            </div>
+
             <span className={`team-pill ${role?.team || 'townsfolk'}`}>
               {role?.team || 'Townsfolk'}
             </span>
@@ -149,10 +139,10 @@ export const CharacterDossier: React.FC<CharacterDossierProps> = ({
         {/* Ability Text */}
         <div className="dossier-section">
           <div className="dossier-section-title">
-            <Zap size={14} /> Official Ability
+            <Zap size={14} /> Ability
           </div>
           <p className="dossier-ability-quote">
-            "{role?.ability || 'No ability text available.'}"
+            {role?.ability || 'No ability text available.'}
           </p>
         </div>
 
@@ -160,7 +150,7 @@ export const CharacterDossier: React.FC<CharacterDossierProps> = ({
         {(role?.firstNightReminder || role?.otherNightReminder) && (
           <div className="dossier-section">
             <div className="dossier-section-title">
-              <Moon size={14} /> Grimoire Night Reminders
+              <Moon size={14} /> Night Reminders
             </div>
             {role.firstNightReminder && (
               <div style={{ fontSize: '0.8rem', marginBottom: '6px' }}>
@@ -191,47 +181,6 @@ export const CharacterDossier: React.FC<CharacterDossierProps> = ({
             <p>
               <strong style={{ color: '#fca5a5' }}>Evil Strategy:</strong> {strategy.evil}
             </p>
-          </div>
-        </div>
-
-        {/* Interactive Storyteller Seat Controls */}
-        <div className="dossier-section">
-          <div className="dossier-section-title">
-            <Shield size={14} /> Grimoire Seat Controls
-          </div>
-          <div className="seat-actions-grid">
-            <button
-              className={`medieval-btn ${!seat.isAlive ? 'btn-crimson' : ''}`}
-              onClick={() => onToggleAlive(seat.id)}
-            >
-              <Skull size={13} />
-              <span>{seat.isAlive ? 'Kill Player' : 'Revive Player'}</span>
-            </button>
-
-            {!seat.isAlive && (
-              <button
-                className={`medieval-btn ${seat.hasGhostVote ? 'btn-active' : ''}`}
-                onClick={() => onToggleGhostVote(seat.id)}
-              >
-                <span>{seat.hasGhostVote ? 'Ghost Vote: Ready' : 'Ghost Vote: Spent'}</span>
-              </button>
-            )}
-
-            <button
-              className={`medieval-btn ${seat.isPoisoned ? 'btn-crimson' : ''}`}
-              onClick={() => onTogglePoison(seat.id)}
-            >
-              <AlertTriangle size={13} />
-              <span>{seat.isPoisoned ? 'Cure Poison' : 'Apply Poison'}</span>
-            </button>
-
-            <button
-              className={`medieval-btn ${seat.isNominated ? 'btn-crimson' : ''}`}
-              onClick={() => onToggleNominated(seat.id)}
-            >
-              <CheckCircle2 size={13} />
-              <span>{seat.isNominated ? 'Clear Nom.' : 'Nominate'}</span>
-            </button>
           </div>
         </div>
       </div>

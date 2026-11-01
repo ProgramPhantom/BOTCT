@@ -30,21 +30,6 @@ export function App() {
     return game.seats.find((s) => s.id === selectedSeatId) || null;
   }, [game.seats, selectedSeatId]);
 
-  const [exactRoles, setExactRoles] = useState<string[] | undefined>(undefined);
-
-  // Handle re-deal
-  const handleResetGame = (
-    count = playerCount,
-    ed = edition,
-    exact = exactRoles
-  ) => {
-    const newGame = generateInitialGame(count, ed, undefined, exact);
-    setGame(newGame);
-    setSelectedSeatId(0);
-    setPhase('day');
-    setDayNumber(1);
-  };
-
   // Start game from New Game Modal
   const handleStartGameFromModal = (config: {
     edition: Edition;
@@ -54,7 +39,6 @@ export function App() {
   }) => {
     setEdition(config.edition);
     setPlayerCount(config.playerCount);
-    setExactRoles(config.exactRoleIds);
     setPhase(config.startPhase);
     setDayNumber(1);
 
@@ -78,49 +62,6 @@ export function App() {
     }
   };
 
-  // Seat state manipulations
-  const handleToggleAlive = (seatId: number) => {
-    setGame((prev) => ({
-      ...prev,
-      seats: prev.seats.map((s) =>
-        s.id === seatId
-          ? {
-              ...s,
-              isAlive: !s.isAlive,
-              hasGhostVote: !s.isAlive ? true : s.hasGhostVote,
-            }
-          : s
-      ),
-    }));
-  };
-
-  const handleToggleGhostVote = (seatId: number) => {
-    setGame((prev) => ({
-      ...prev,
-      seats: prev.seats.map((s) =>
-        s.id === seatId ? { ...s, hasGhostVote: !s.hasGhostVote } : s
-      ),
-    }));
-  };
-
-  const handleTogglePoison = (seatId: number) => {
-    setGame((prev) => ({
-      ...prev,
-      seats: prev.seats.map((s) =>
-        s.id === seatId ? { ...s, isPoisoned: !s.isPoisoned } : s
-      ),
-    }));
-  };
-
-  const handleToggleNominated = (seatId: number) => {
-    setGame((prev) => ({
-      ...prev,
-      seats: prev.seats.map((s) =>
-        s.id === seatId ? { ...s, isNominated: !s.isNominated } : s
-      ),
-    }));
-  };
-
   const handleSelectSeat = (seatId: number) => {
     setSelectedSeatId(seatId);
     setActiveRightTab('dossier');
@@ -129,12 +70,9 @@ export function App() {
   return (
     <div className="botct-app">
       <Header
-        edition={edition}
-        playerCount={playerCount}
         phase={phase}
         dayNumber={dayNumber}
         onAdvancePhase={handleAdvancePhase}
-        onResetGame={() => handleResetGame()}
         onOpenNewGame={() => setIsNewGameOpen(true)}
       />
 
@@ -160,7 +98,7 @@ export function App() {
               onClick={() => setActiveRightTab('dossier')}
             >
               <BookOpen size={14} />
-              <span>Character Dossier</span>
+              <span>Character </span>
             </button>
             <button
               className={`sidebar-tab-btn ${activeRightTab === 'simulation' ? 'active' : ''}`}
@@ -175,10 +113,6 @@ export function App() {
             {activeRightTab === 'dossier' ? (
               <CharacterDossier
                 seat={selectedSeat}
-                onToggleAlive={handleToggleAlive}
-                onToggleGhostVote={handleToggleGhostVote}
-                onTogglePoison={handleTogglePoison}
-                onToggleNominated={handleToggleNominated}
                 onClose={() => setSelectedSeatId(null)}
               />
             ) : (

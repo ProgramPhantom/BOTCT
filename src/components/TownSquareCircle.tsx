@@ -87,52 +87,35 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
           const isSelected = selectedSeatId === seat.id;
           const teamClass = role?.team || 'townsfolk';
 
-          // All information is visible in this simulator
-          const tooltipTitle = `Seat #${seat.id + 1}: ${role?.name || 'Unknown'} (${role?.team || 'Townsfolk'})\n\n"${role?.ability || ''}"\n\nStatus: ${
-            seat.isAlive ? 'Alive' : 'Dead (Ghost Vote ' + (seat.hasGhostVote ? 'Ready' : 'Spent') + ')'
-          }${seat.isPoisoned ? ' [Poisoned]' : ''}${seat.isDrunk ? ' [Drunk]' : ''}${seat.isNominated ? ' [Nominated]' : ''}`;
-
           return (
             <div
               key={seat.id}
               className={`player-seat-node ${isSelected ? 'selected' : ''}`}
               style={{ left: `${x}px`, top: `${y}px` }}
               onClick={() => onSelectSeat(seat.id)}
-              title={tooltipTitle}
             >
-              {/* Token Container */}
-              <div className={`character-token ${teamClass} ${isSelected ? 'selected' : ''}`}>
+              {/* Token Container: greyed out if dead */}
+              <div
+                className={`character-token ${teamClass} ${!seat.isAlive ? 'is-dead' : ''} ${isSelected ? 'selected' : ''
+                  }`}
+              >
                 {/* Official Character Icon */}
                 <img
                   src={`/assets/icons/${seat.characterId}.png`}
                   alt={role?.name || seat.characterId}
                   className="token-image"
-                  style={{
-                    filter: !seat.isAlive ? 'grayscale(80%) brightness(0.6)' : 'none',
-                  }}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = '/assets/icons/imp.png';
                   }}
                 />
 
-                {/* Dead Shroud Overlay */}
-                {!seat.isAlive && (
-                  <div className="dead-shroud-overlay" title="Dead Player (Has 1 Ghost Vote)">
-                    <img
-                      src="/assets/death.png"
-                      alt="Shroud of Death"
-                      className="death-ribbon-img"
-                    />
-                  </div>
-                )}
-
-                {/* Ghost Vote Token for dead players */}
+                {/* Dead Vote Indicator - Active when vote is available, greyed out when lost */}
                 {!seat.isAlive && (
                   <div
-                    className={`ghost-vote-marker ${!seat.hasGhostVote ? 'spent' : ''}`}
-                    title={seat.hasGhostVote ? 'Ghost Vote Available' : 'Ghost Vote Spent'}
+                    className={`dead-vote-marker ${seat.hasGhostVote ? 'ready' : 'spent'}`}
+                    title={seat.hasGhostVote ? 'Dead Vote Available (1 Vote)' : 'Dead Vote Spent (No Votes)'}
                   >
-                    {seat.hasGhostVote ? '👻' : '✕'}
+                    <Vote size={12} strokeWidth={2.4} />
                   </div>
                 )}
 
@@ -166,13 +149,13 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
                   <span className="seat-hover-rolename">{role?.name || 'Unknown'}</span>
                 </div>
                 {role?.ability && (
-                  <div className="seat-hover-ability">"{role.ability}"</div>
+                  <div className="seat-hover-ability">{role.ability}</div>
                 )}
                 <div className="seat-hover-status">
-                  <span style={{ color: seat.isAlive ? '#86efac' : '#f87171' }}>
+                  <span style={{ color: seat.isAlive ? '#86efac' : '#9ca3af' }}>
                     {seat.isAlive
                       ? '● Alive'
-                      : `† Dead (Ghost Vote ${seat.hasGhostVote ? 'Ready' : 'Spent'})`}
+                      : `† Dead (Dead Vote ${seat.hasGhostVote ? 'Ready' : 'Spent'})`}
                   </span>
                   {seat.isPoisoned && (
                     <span style={{ color: '#4ade80' }}> • Poisoned</span>
@@ -217,4 +200,6 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
     </div>
   );
 };
+
+
 
