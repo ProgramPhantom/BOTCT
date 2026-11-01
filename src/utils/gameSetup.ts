@@ -35,41 +35,52 @@ export interface GeneratedGame {
 export function generateInitialGame(
   playerCount: number = 8,
   edition: Edition = 'tb',
-  customRoleIds?: string[]
+  customRoleIds?: string[],
+  exactRoleIds?: string[]
 ): GeneratedGame {
   let editionRoles = getRolesByEdition(edition, customRoleIds);
   if (editionRoles.length === 0) {
     editionRoles = getRolesByEdition('tb');
   }
-  const baseDist = PLAYER_DISTRIBUTIONS[playerCount] || PLAYER_DISTRIBUTIONS[8];
 
-  const townsfolkPool = shuffle(editionRoles.filter(r => r.team === 'townsfolk'));
-  const outsiderPool = shuffle(editionRoles.filter(r => r.team === 'outsider'));
-  const minionPool = shuffle(editionRoles.filter(r => r.team === 'minion'));
-  const demonPool = shuffle(editionRoles.filter(r => r.team === 'demon'));
+  let selectedRoles: CharacterRole[] = [];
 
-  // Select Minions first to check for Baron
-  const selectedMinions = minionPool.slice(0, baseDist.minions);
-  const hasBaron = selectedMinions.some(m => m.id === 'baron');
+  if (exactRoleIds && exactRoleIds.length > 0) {
+    selectedRoles = exactRoleIds
+      .map(id => getRoleById(id))
+      .filter((r): r is CharacterRole => !!r);
+    playerCount = selectedRoles.length;
+  } else {
+    const baseDist = PLAYER_DISTRIBUTIONS[playerCount] || PLAYER_DISTRIBUTIONS[8];
 
-  let townsfolkCount = baseDist.townsfolk;
-  let outsiderCount = baseDist.outsiders;
+    const townsfolkPool = shuffle(editionRoles.filter(r => r.team === 'townsfolk'));
+    const outsiderPool = shuffle(editionRoles.filter(r => r.team === 'outsider'));
+    const minionPool = shuffle(editionRoles.filter(r => r.team === 'minion'));
+    const demonPool = shuffle(editionRoles.filter(r => r.team === 'demon'));
 
-  if (hasBaron) {
-    outsiderCount = Math.min(outsiderPool.length, outsiderCount + 2);
-    townsfolkCount = Math.max(0, townsfolkCount - 2);
+    // Select Minions first to check for Baron
+    const selectedMinions = minionPool.slice(0, baseDist.minions);
+    const hasBaron = selectedMinions.some(m => m.id === 'baron');
+
+    let townsfolkCount = baseDist.townsfolk;
+    let outsiderCount = baseDist.outsiders;
+
+    if (hasBaron) {
+      outsiderCount = Math.min(outsiderPool.length, outsiderCount + 2);
+      townsfolkCount = Math.max(0, townsfolkCount - 2);
+    }
+
+    const selectedTownsfolk = townsfolkPool.slice(0, townsfolkCount);
+    const selectedOutsiders = outsiderPool.slice(0, outsiderCount);
+    const selectedDemon = demonPool.slice(0, baseDist.demons);
+
+    selectedRoles = [
+      ...selectedTownsfolk,
+      ...selectedOutsiders,
+      ...selectedMinions,
+      ...selectedDemon
+    ];
   }
-
-  const selectedTownsfolk = townsfolkPool.slice(0, townsfolkCount);
-  const selectedOutsiders = outsiderPool.slice(0, outsiderCount);
-  const selectedDemon = demonPool.slice(0, baseDist.demons);
-
-  const selectedRoles = [
-    ...selectedTownsfolk,
-    ...selectedOutsiders,
-    ...selectedMinions,
-    ...selectedDemon
-  ];
 
   // Shuffled assignments to seats
   const shuffledRoles = shuffle(selectedRoles);

@@ -11,7 +11,6 @@ import { BookOpen, BrainCircuit } from 'lucide-react';
 export function App() {
   const [edition, setEdition] = useState<Edition>('tb');
   const [playerCount, setPlayerCount] = useState<number>(8);
-  const [customRoles, setCustomRoles] = useState<string[] | undefined>(undefined);
   const [phase, setPhase] = useState<'day' | 'night'>('day');
   const [dayNumber, setDayNumber] = useState<number>(1);
   const [viewMode, setViewMode] = useState<'grimoire' | 'townsquare'>('grimoire');
@@ -32,9 +31,15 @@ export function App() {
     return game.seats.find((s) => s.id === selectedSeatId) || null;
   }, [game.seats, selectedSeatId]);
 
+  const [exactRoles, setExactRoles] = useState<string[] | undefined>(undefined);
+
   // Handle re-deal
-  const handleResetGame = (count = playerCount, ed = edition, roles = customRoles) => {
-    const newGame = generateInitialGame(count, ed, roles);
+  const handleResetGame = (
+    count = playerCount,
+    ed = edition,
+    exact = exactRoles
+  ) => {
+    const newGame = generateInitialGame(count, ed, undefined, exact);
     setGame(newGame);
     setSelectedSeatId(0);
     setPhase('day');
@@ -45,19 +50,20 @@ export function App() {
   const handleStartGameFromModal = (config: {
     edition: Edition;
     playerCount: number;
-    customRoleIds?: string[];
+    exactRoleIds: string[];
     startPhase: 'day' | 'night';
   }) => {
     setEdition(config.edition);
     setPlayerCount(config.playerCount);
-    setCustomRoles(config.customRoleIds);
+    setExactRoles(config.exactRoleIds);
     setPhase(config.startPhase);
     setDayNumber(1);
 
     const newGame = generateInitialGame(
       config.playerCount,
       config.edition,
-      config.customRoleIds
+      undefined,
+      config.exactRoleIds
     );
     setGame(newGame);
     setSelectedSeatId(0);
