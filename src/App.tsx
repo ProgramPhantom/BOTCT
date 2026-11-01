@@ -13,7 +13,6 @@ export function App() {
   const [playerCount, setPlayerCount] = useState<number>(8);
   const [phase, setPhase] = useState<'day' | 'night'>('day');
   const [dayNumber, setDayNumber] = useState<number>(1);
-  const [viewMode, setViewMode] = useState<'grimoire' | 'townsquare'>('grimoire');
 
   // Modal state
   const [isNewGameOpen, setIsNewGameOpen] = useState<boolean>(false);
@@ -69,12 +68,12 @@ export function App() {
     setSelectedSeatId(0);
   };
 
-  // Phase toggling
-  const handlePhaseToggle = () => {
-    if (phase === 'day') {
-      setPhase('night');
-    } else {
+  // Advance game stage: Night 1 -> Day 1 -> Night 2 -> Day 2 ...
+  const handleAdvancePhase = () => {
+    if (phase === 'night') {
       setPhase('day');
+    } else {
+      setPhase('night');
       setDayNumber((prev) => prev + 1);
     }
   };
@@ -134,11 +133,7 @@ export function App() {
         playerCount={playerCount}
         phase={phase}
         dayNumber={dayNumber}
-        onPhaseToggle={handlePhaseToggle}
-        viewMode={viewMode}
-        onViewModeToggle={() =>
-          setViewMode((m) => (m === 'grimoire' ? 'townsquare' : 'grimoire'))
-        }
+        onAdvancePhase={handleAdvancePhase}
         onResetGame={() => handleResetGame()}
         onOpenNewGame={() => setIsNewGameOpen(true)}
       />
@@ -150,10 +145,9 @@ export function App() {
             seats={game.seats}
             selectedSeatId={selectedSeatId}
             onSelectSeat={handleSelectSeat}
-            viewMode={viewMode}
             phase={phase}
             dayNumber={dayNumber}
-            onAdvancePhase={handlePhaseToggle}
+            onAdvancePhase={handleAdvancePhase}
             bluffs={game.bluffs}
           />
         </section>

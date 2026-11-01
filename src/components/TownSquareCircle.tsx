@@ -1,4 +1,5 @@
 import React from 'react';
+import { Moon, Sun, ChevronRight, Users, Vote } from 'lucide-react';
 import type { PlayerSeat, CharacterRole } from '../types/game';
 import { getRoleById } from '../utils/gameSetup';
 
@@ -6,7 +7,6 @@ interface TownSquareCircleProps {
   seats: PlayerSeat[];
   selectedSeatId: number | null;
   onSelectSeat: (seatId: number) => void;
-  viewMode: 'grimoire' | 'townsquare';
   phase: 'day' | 'night';
   dayNumber: number;
   onAdvancePhase: () => void;
@@ -17,7 +17,6 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
   seats,
   selectedSeatId,
   onSelectSeat,
-  viewMode,
   phase,
   dayNumber,
   onAdvancePhase,
@@ -30,38 +29,50 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
   const aliveCount = seats.filter(s => s.isAlive).length;
   const votesNeeded = Math.ceil(aliveCount / 2);
 
+  const nextPhaseLabel =
+    phase === 'night' ? `Day ${dayNumber}` : `Night ${dayNumber + 1}`;
+
   return (
     <div className={`botct-arena-container ${phase === 'night' ? 'night-mode' : 'day-mode'}`}>
+      {/* Top Left Counters: Alive & Majority */}
+      <div className="arena-top-left-stats">
+        <div className="stat-counter-badge" title="Living players in town">
+          <Users size={13} style={{ color: 'var(--color-gold)' }} />
+          <span>Alive:</span>
+          <strong>{aliveCount}/{playerCount}</strong>
+        </div>
+        <div className="stat-counter-badge" title="Votes required to execute today">
+          <Vote size={13} style={{ color: 'var(--color-gold)' }} />
+          <span>Majority:</span>
+          <strong>{votesNeeded}</strong>
+        </div>
+      </div>
+
       <div className="circle-wrapper">
         {/* Background Grimoire Rings */}
         <div className="circle-ring" />
         <div className="circle-ring-inner" />
 
-        {/* Center Grimoire Seal */}
+        {/* Center Plaque with Game Stage Display and Next Button */}
         <div className="grimoire-center-seal">
-          <img
-            src="/assets/icons/imp.png"
-            alt="Town Square Center"
-            style={{ width: '48px', height: '48px', opacity: 0.9, marginBottom: '4px' }}
-          />
-          <h3>{phase === 'day' ? `Day ${dayNumber}` : `Night ${dayNumber}`}</h3>
-          <p>{phase === 'day' ? 'Town Square Gathering' : 'Darkness Falls'}</p>
-
-          <div className="center-seal-stats">
-            <span className="center-stat-pill" title="Living players in town">
-              Alive: {aliveCount}/{playerCount}
-            </span>
-            <span className="center-stat-pill" title="Votes required to execute today">
-              Majority: {votesNeeded}
-            </span>
+          {/* Game Stage Display */}
+          <div className={`game-stage-badge ${phase}`}>
+            {phase === 'night' ? <Moon size={13} /> : <Sun size={13} />}
+            <span>{phase === 'night' ? `Night ${dayNumber}` : `Day ${dayNumber}`}</span>
           </div>
 
+          <p className="center-stage-subtext">
+            {phase === 'day' ? 'Town Square Gathering' : 'Darkness Falls'}
+          </p>
+
+          {/* Next Button in Center */}
           <button
-            className="medieval-btn"
-            style={{ marginTop: '10px', fontSize: '0.74rem', padding: '4px 10px' }}
+            className="medieval-btn btn-active center-next-btn"
             onClick={onAdvancePhase}
+            title={`Advance to ${nextPhaseLabel}`}
           >
-            {phase === 'night' ? 'Dawn Rises (To Day)' : 'Dusk Falls (To Night)'}
+            <span>Next: {nextPhaseLabel}</span>
+            <ChevronRight size={13} />
           </button>
         </div>
 
@@ -74,14 +85,12 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
 
           const role = getRoleById(seat.characterId);
           const isSelected = selectedSeatId === seat.id;
-          const isDemon = role?.team === 'demon';
           const teamClass = role?.team || 'townsfolk';
 
-          const tooltipTitle = viewMode === 'grimoire'
-            ? `Seat #${seat.id + 1}: ${role?.name || 'Unknown'} (${role?.team || 'Townsfolk'})\n\n"${role?.ability || ''}"\n\nStatus: ${
-                seat.isAlive ? 'Alive' : 'Dead (Ghost Vote ' + (seat.hasGhostVote ? 'Ready' : 'Spent') + ')'
-              }${seat.isPoisoned ? ' [Poisoned]' : ''}${seat.isDrunk ? ' [Drunk]' : ''}`
-            : `Seat #${seat.id + 1}: Townsperson\nStatus: ${seat.isAlive ? 'Alive' : 'Dead'}`;
+          // All information is visible in this simulator
+          const tooltipTitle = `Seat #${seat.id + 1}: ${role?.name || 'Unknown'} (${role?.team || 'Townsfolk'})\n\n"${role?.ability || ''}"\n\nStatus: ${
+            seat.isAlive ? 'Alive' : 'Dead (Ghost Vote ' + (seat.hasGhostVote ? 'Ready' : 'Spent') + ')'
+          }${seat.isPoisoned ? ' [Poisoned]' : ''}${seat.isDrunk ? ' [Drunk]' : ''}${seat.isNominated ? ' [Nominated]' : ''}`;
 
           return (
             <div
@@ -92,22 +101,14 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
               title={tooltipTitle}
             >
               {/* Token Container */}
-              <div
-                className={`character-token ${viewMode === 'grimoire' ? teamClass : ''} ${
-                  isSelected ? 'selected' : ''
-                }`}
-              >
+              <div className={`character-token ${teamClass} ${isSelected ? 'selected' : ''}`}>
                 {/* Official Character Icon */}
                 <img
                   src={`/assets/icons/${seat.characterId}.png`}
                   alt={role?.name || seat.characterId}
                   className="token-image"
                   style={{
-                    filter: !seat.isAlive
-                      ? 'grayscale(80%) brightness(0.6)'
-                      : viewMode === 'townsquare' && !isDemon
-                      ? 'none'
-                      : 'none',
+                    filter: !seat.isAlive ? 'grayscale(80%) brightness(0.6)' : 'none',
                   }}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = '/assets/icons/imp.png';
@@ -137,12 +138,12 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
 
                 {/* Status Reminders */}
                 <div className="token-status-badges">
-                  {viewMode === 'grimoire' && seat.isPoisoned && (
+                  {seat.isPoisoned && (
                     <span className="status-badge poisoned" title="Poisoned by Poisoner">
                       Pois
                     </span>
                   )}
-                  {viewMode === 'grimoire' && seat.isDrunk && (
+                  {seat.isDrunk && (
                     <span className="status-badge drunk" title="Is the Drunk (thinks Townsfolk)">
                       Drunk
                     </span>
@@ -155,20 +156,16 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
                 </div>
               </div>
 
-              {/* Basic character info hover card */}
+              {/* Character info hover card - always displays full info */}
               <div className={`seat-hover-card ${y < 130 ? 'pos-bottom' : 'pos-top'}`}>
                 <div className="seat-hover-header">
                   <span className="seat-hover-num">Seat #{seat.id + 1}</span>
-                  {viewMode === 'grimoire' && role && (
-                    <span className={`team-pill ${role.team}`}>{role.team}</span>
-                  )}
+                  {role && <span className={`team-pill ${role.team}`}>{role.team}</span>}
                 </div>
                 <div className="seat-hover-role-line">
-                  <span className="seat-hover-rolename">
-                    {viewMode === 'grimoire' ? role?.name || 'Unknown' : 'Townsperson'}
-                  </span>
+                  <span className="seat-hover-rolename">{role?.name || 'Unknown'}</span>
                 </div>
-                {viewMode === 'grimoire' && role?.ability && (
+                {role?.ability && (
                   <div className="seat-hover-ability">"{role.ability}"</div>
                 )}
                 <div className="seat-hover-status">
@@ -177,10 +174,10 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
                       ? '● Alive'
                       : `† Dead (Ghost Vote ${seat.hasGhostVote ? 'Ready' : 'Spent'})`}
                   </span>
-                  {viewMode === 'grimoire' && seat.isPoisoned && (
+                  {seat.isPoisoned && (
                     <span style={{ color: '#4ade80' }}> • Poisoned</span>
                   )}
-                  {viewMode === 'grimoire' && seat.isDrunk && (
+                  {seat.isDrunk && (
                     <span style={{ color: '#fed7aa' }}> • Drunk</span>
                   )}
                   {seat.isNominated && (
@@ -193,8 +190,8 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
         })}
       </div>
 
-      {/* Demon Bluffs Display */}
-      {viewMode === 'grimoire' && bluffs.length > 0 && (
+      {/* Demon Bluffs Display - Always visible if bluffs exist */}
+      {bluffs.length > 0 && (
         <div style={{ marginTop: '16px', textAlign: 'center' }}>
           <div
             style={{
@@ -220,3 +217,4 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
     </div>
   );
 };
+

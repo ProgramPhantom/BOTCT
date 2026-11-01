@@ -222,41 +222,36 @@ body {
   box-shadow: 0 0 10px rgba(212, 175, 55, 0.35);
 }
 
-/* Phase Day/Night Toggle */
-.phase-toggle {
-  display: flex;
+/* Game Stage Display Badge */
+.game-stage-badge {
+  display: inline-flex;
   align-items: center;
-  background: #14100c;
-  border: 1px solid rgba(212, 175, 55, 0.4);
-  border-radius: 5px;
-  overflow: hidden;
-}
-
-.phase-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
-  background: transparent;
-  border: none;
-  color: var(--color-parchment-muted);
+  gap: 7px;
+  padding: 5px 12px;
+  border-radius: 4px;
   font-family: var(--font-serif);
-  font-size: 0.78rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+  user-select: none;
 }
 
-.phase-btn.active.night {
-  background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
+.game-stage-badge.night {
+  background: linear-gradient(180deg, rgba(30, 27, 75, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1px solid #6366f1;
   color: #93c5fd;
   text-shadow: 0 0 8px rgba(147, 197, 253, 0.6);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
 }
 
-.phase-btn.active.day {
-  background: linear-gradient(180deg, #78350f 0%, #451a03 100%);
+.game-stage-badge.day {
+  background: linear-gradient(180deg, rgba(120, 53, 15, 0.9) 0%, rgba(69, 26, 3, 0.95) 100%);
+  border: 1px solid #d97706;
   color: #fde68a;
   text-shadow: 0 0 8px rgba(253, 230, 138, 0.6);
+  box-shadow: 0 0 10px rgba(217, 119, 6, 0.2);
 }
 
 /* Main Layout: 2 Columns (Center Stage + Right Tabbed Sidebar) */
@@ -362,8 +357,8 @@ body {
 /* Center Grimoire Plaque */
 .grimoire-center-seal {
   position: absolute;
-  width: 190px;
-  height: 190px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, #2a2018 0%, #120e0b 90%);
   border: 2px solid var(--color-gold-dark);
@@ -373,7 +368,7 @@ body {
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 12px;
+  padding: 14px;
   z-index: 10;
   transition: all 0.3s ease;
 }
@@ -383,36 +378,60 @@ body {
   box-shadow: 0 0 40px rgba(212, 175, 55, 0.3), inset 0 2px 10px rgba(255, 215, 0, 0.35);
 }
 
-.grimoire-center-seal h3 {
-  font-family: var(--font-serif-title);
-  font-size: 0.9rem;
-  color: var(--color-gold-bright);
-  letter-spacing: 1px;
-  margin-bottom: 2px;
-}
-
-.grimoire-center-seal p {
+.center-stage-subtext {
   font-family: var(--font-ui);
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   color: var(--color-parchment-muted);
   text-transform: uppercase;
   letter-spacing: 1px;
+  margin-top: 4px;
 }
 
-.center-seal-stats {
-  margin-top: 6px;
+/* Arena Top Left Counters */
+.arena-top-left-stats {
+  position: absolute;
+  top: 14px;
+  left: 16px;
   display: flex;
-  gap: 8px;
-  font-family: var(--font-ui);
-  font-size: 0.68rem;
+  align-items: center;
+  gap: 10px;
+  z-index: 30;
 }
 
-.center-stat-pill {
-  padding: 2px 6px;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  color: var(--color-parchment);
+.stat-counter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  background: rgba(18, 14, 11, 0.88);
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  font-family: var(--font-serif);
+  font-size: 0.78rem;
+  color: var(--color-parchment-muted);
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(4px);
+  user-select: none;
+  transition: all 0.2s ease;
+}
+
+.stat-counter-badge:hover {
+  border-color: rgba(212, 175, 55, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 10px rgba(212, 175, 55, 0.15);
+}
+
+.stat-counter-badge strong {
+  color: var(--color-gold-bright);
+  font-weight: 700;
+  font-size: 0.82rem;
+}
+
+.center-next-btn {
+  margin-top: 10px;
+  font-size: 0.76rem;
+  padding: 5px 14px;
+  gap: 5px;
 }
 
 /* Player Seat Node */
@@ -481,11 +500,11 @@ body {
 }
 
 .token-image {
-  width: 58px;
-  height: 58px;
+  width: 54px;
+  height: 54px;
   object-fit: contain;
-  border-radius: 50%;
   pointer-events: none;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.75));
 }
 
 /* Dead Shroud Overlay */
@@ -761,13 +780,14 @@ body {
 }
 
 .dossier-token-large {
-  width: 58px;
-  height: 58px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   border: 2px solid var(--color-gold);
   box-shadow: 0 0 12px rgba(212, 175, 55, 0.3);
   background: #15100c;
   object-fit: contain;
+  padding: 4px;
 }
 
 .dossier-header-info h2 {

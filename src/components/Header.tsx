@@ -1,5 +1,5 @@
 import React from 'react';
-import { Moon, Sun, RefreshCw, Eye, EyeOff, Sparkles } from 'lucide-react';
+import { Moon, Sun, RefreshCw, Sparkles, ChevronRight } from 'lucide-react';
 import type { Edition } from '../types/game';
 
 interface HeaderProps {
@@ -7,9 +7,7 @@ interface HeaderProps {
   playerCount: number;
   phase: 'day' | 'night';
   dayNumber: number;
-  onPhaseToggle: () => void;
-  viewMode: 'grimoire' | 'townsquare';
-  onViewModeToggle: () => void;
+  onAdvancePhase: () => void;
   onResetGame: () => void;
   onOpenNewGame: () => void;
 }
@@ -19,9 +17,7 @@ export const Header: React.FC<HeaderProps> = ({
   playerCount,
   phase,
   dayNumber,
-  onPhaseToggle,
-  viewMode,
-  onViewModeToggle,
+  onAdvancePhase,
   onResetGame,
   onOpenNewGame,
 }) => {
@@ -39,6 +35,9 @@ export const Header: React.FC<HeaderProps> = ({
         return 'Standard Script';
     }
   };
+
+  const nextPhaseLabel =
+    phase === 'night' ? `Day ${dayNumber}` : `Night ${dayNumber + 1}`;
 
   return (
     <header className="botct-header">
@@ -67,38 +66,20 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Controls */}
         <div className="botct-top-controls">
-          {/* Day / Night Switch */}
-          <div className="phase-toggle">
-            <button
-              className={`phase-btn ${phase === 'night' ? 'active night' : ''}`}
-              onClick={onPhaseToggle}
-              title="Night Phase (Information & Evil Murders)"
-            >
-              <Moon size={14} />
-              <span>Night {dayNumber}</span>
-            </button>
-            <button
-              className={`phase-btn ${phase === 'day' ? 'active day' : ''}`}
-              onClick={onPhaseToggle}
-              title="Day Phase (Public Whisper & Execution)"
-            >
-              <Sun size={14} />
-              <span>Day {dayNumber}</span>
-            </button>
+          {/* Game Stage Display (Day / Night, Number) */}
+          <div className={`game-stage-badge ${phase}`}>
+            {phase === 'night' ? <Moon size={14} /> : <Sun size={14} />}
+            <span>{phase === 'night' ? `Night ${dayNumber}` : `Day ${dayNumber}`}</span>
           </div>
 
-          {/* Grimoire View vs Public Town Square View */}
+          {/* Next Phase Button */}
           <button
-            className={`medieval-btn ${viewMode === 'grimoire' ? 'btn-active' : ''}`}
-            onClick={onViewModeToggle}
-            title={
-              viewMode === 'grimoire'
-                ? 'Grimoire View (All secret roles & poison visible)'
-                : 'Town Square View (Public player knowledge)'
-            }
+            className="medieval-btn btn-active"
+            onClick={onAdvancePhase}
+            title={`Advance to ${nextPhaseLabel}`}
           >
-            {viewMode === 'grimoire' ? <Eye size={15} /> : <EyeOff size={15} />}
-            <span>{viewMode === 'grimoire' ? 'Grimoire' : 'Town Square'}</span>
+            <span>Next: {nextPhaseLabel}</span>
+            <ChevronRight size={14} />
           </button>
 
           {/* Re-deal seats with current config */}
