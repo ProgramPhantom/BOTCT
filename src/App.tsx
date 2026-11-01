@@ -1,27 +1,30 @@
 import { useState, useMemo } from 'react';
 import { Header } from './components/Header';
 import { TownSquareCircle } from './components/TownSquareCircle';
-import { ScriptPanel } from './components/ScriptPanel';
 import { CharacterDossier } from './components/CharacterDossier';
 import { SimulationPanel } from './components/SimulationPanel';
+import { NewGameModal } from './components/NewGameModal';
 import { generateInitialGame } from './utils/gameSetup';
-import type { Edition, CharacterRole } from './types/game';
+import type { Edition } from './types/game';
+import { BookOpen, BrainCircuit } from 'lucide-react';
 
 export function App() {
   const [edition, setEdition] = useState<Edition>('tb');
   const [playerCount, setPlayerCount] = useState<number>(8);
+  const [customRoles, setCustomRoles] = useState<string[] | undefined>(undefined);
   const [phase, setPhase] = useState<'day' | 'night'>('day');
   const [dayNumber, setDayNumber] = useState<number>(1);
   const [viewMode, setViewMode] = useState<'grimoire' | 'townsquare'>('grimoire');
 
+  // Modal state
+  const [isNewGameOpen, setIsNewGameOpen] = useState<boolean>(false);
+
+  // Right sidebar tab state
+  const [activeRightTab, setActiveRightTab] = useState<'dossier' | 'simulation'>('dossier');
+
   // Active game state
   const [game, setGame] = useState(() => generateInitialGame(8, 'tb'));
   const [selectedSeatId, setSelectedSeatId] = useState<number | null>(0);
-
-  // Set of character IDs currently in play
-  const inPlayCharacterIds = useMemo(() => {
-    return new Set(game.seats.map((s) => s.characterId));
-  }, [game.seats]);
 
   // Selected player seat
   const selectedSeat = useMemo(() => {
@@ -30,22 +33,34 @@ export function App() {
   }, [game.seats, selectedSeatId]);
 
   // Handle re-deal
-  const handleResetGame = (count = playerCount, ed = edition) => {
-    const newGame = generateInitialGame(count, ed);
+  const handleResetGame = (count = playerCount, ed = edition, roles = customRoles) => {
+    const newGame = generateInitialGame(count, ed, roles);
     setGame(newGame);
     setSelectedSeatId(0);
     setPhase('day');
     setDayNumber(1);
   };
 
-  const handlePlayerCountChange = (count: number) => {
-    setPlayerCount(count);
-    handleResetGame(count, edition);
-  };
+  // Start game from New Game Modal
+  const handleStartGameFromModal = (config: {
+    edition: Edition;
+    playerCount: number;
+    customRoleIds?: string[];
+    startPhase: 'day' | 'night';
+  }) => {
+    setEdition(config.edition);
+    setPlayerCount(config.playerCount);
+    setCustomRoles(config.customRoleIds);
+    setPhase(config.startPhase);
+    setDayNumber(1);
 
-  const handleEditionChange = (ed: Edition) => {
-    setEdition(ed);
-    handleResetGame(playerCount, ed);
+    const newGame = generateInitialGame(
+      config.playerCount,
+      config.edition,
+      config.customRoleIds
+    );
+    setGame(newGame);
+    setSelectedSeatId(0);
   };
 
   // Phase toggling
@@ -101,21 +116,16 @@ export function App() {
     }));
   };
 
-  const handleSelectRoleFromScript = (role: CharacterRole) => {
-    // If a seat with this role is in play, select it
-    const matchingSeat = game.seats.find((s) => s.characterId === role.id);
-    if (matchingSeat) {
-      setSelectedSeatId(matchingSeat.id);
-    }
+  const handleSelectSeat = (seatId: number) => {
+    setSelectedSeatId(seatId);
+    setActiveRightTab('dossier');
   };
 
   return (
     <div className="botct-app">
       <Header
         edition={edition}
-        onEditionChange={handleEditionChange}
         playerCount={playerCount}
-        onPlayerCountChange={handlePlayerCountChange}
         phase={phase}
         dayNumber={dayNumber}
         onPhaseToggle={handlePhaseToggle}
@@ -124,24 +134,16 @@ export function App() {
           setViewMode((m) => (m === 'grimoire' ? 'townsquare' : 'grimoire'))
         }
         onResetGame={() => handleResetGame()}
+        onOpenNewGame={() => setIsNewGameOpen(true)}
       />
 
       <main className="botct-main-content">
-        {/* Left: Trouble Brewing Script Roster */}
-        <aside>
-          <ScriptPanel
-            edition={edition}
-            inPlayCharacterIds={inPlayCharacterIds}
-            onSelectRole={handleSelectRoleFromScript}
-          />
-        </aside>
-
-        {/* Center: The Town Square Circle */}
-        <section style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {/* Center Arena: The Town Square Circle */}
+        <section className="botct-center-stage">
           <TownSquareCircle
             seats={game.seats}
             selectedSeatId={selectedSeatId}
-            onSelectSeat={(id) => setSelectedSeatId(id)}
+            onSelectSeat={handleSelectSeat}
             viewMode={viewMode}
             phase={phase}
             dayNumber={dayNumber}
@@ -150,22 +152,43 @@ export function App() {
           />
         </section>
 
-        {/* Right: Character Dossier & Simulation Telemetry */}
-        <aside style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <CharacterDossier
-            seat={selectedSeat}
-            onToggleAlive={handleToggleAlive}
-            onToggleGhostVote={handleToggleGhostVote}
-            onTogglePoison={handleTogglePoison}
-            onToggleNominated={handleToggleNominated}
-            onClose={() => setSelectedSeatId(null)}
-          />
+        {/* Right Sidebar: Tabbed Dossier & Simulation Panels */}
+        <aside className="botct-sidebar-tabbed">
+          <div className="sidebar-tab-nav">
+            <button
+              className={`sidebar-tab-btn ${activeRightTab === 'dossier' ? 'active' : ''}`}
+              onClick={() => setActiveRightTab('dossier')}
+            >
+              <BookOpen size={14} />
+              <span>Character Dossier</span>
+            </button>
+            <button
+              className={`sidebar-tab-btn ${activeRightTab === 'simulation' ? 'active' : ''}`}
+              onClick={() => setActiveRightTab('simulation')}
+            >
+              <BrainCircuit size={14} />
+              <span>Deduction & Simulation</span>
+            </button>
+          </div>
 
-          <SimulationPanel
-            seats={game.seats}
-            phase={phase}
-            dayNumber={dayNumber}
-          />
+          <div className="sidebar-tab-content">
+            {activeRightTab === 'dossier' ? (
+              <CharacterDossier
+                seat={selectedSeat}
+                onToggleAlive={handleToggleAlive}
+                onToggleGhostVote={handleToggleGhostVote}
+                onTogglePoison={handleTogglePoison}
+                onToggleNominated={handleToggleNominated}
+                onClose={() => setSelectedSeatId(null)}
+              />
+            ) : (
+              <SimulationPanel
+                seats={game.seats}
+                phase={phase}
+                dayNumber={dayNumber}
+              />
+            )}
+          </div>
         </aside>
       </main>
 
@@ -174,9 +197,18 @@ export function App() {
           Blood on the Clocktower is a trademark of Steven Medway & The Pandemonium Institute. Assets used for simulation study.
         </div>
         <div style={{ color: 'var(--color-gold)' }}>
-          Simulation Engine: Ready for Agent Class Hierarchy
+          Autonomous Agent Strategy & Deduction Engine
         </div>
       </footer>
+
+      {/* New Game Setup Dialog */}
+      <NewGameModal
+        isOpen={isNewGameOpen}
+        onClose={() => setIsNewGameOpen(false)}
+        onStartGame={handleStartGameFromModal}
+        currentEdition={edition}
+        currentPlayerCount={playerCount}
+      />
     </div>
   );
 }

@@ -1,32 +1,45 @@
 import React from 'react';
-import { Moon, Sun, RefreshCw, Eye, EyeOff } from 'lucide-react';
+import { Moon, Sun, RefreshCw, Eye, EyeOff, Sparkles } from 'lucide-react';
 import type { Edition } from '../types/game';
 
 interface HeaderProps {
   edition: Edition;
-  onEditionChange: (edition: Edition) => void;
   playerCount: number;
-  onPlayerCountChange: (count: number) => void;
   phase: 'day' | 'night';
   dayNumber: number;
   onPhaseToggle: () => void;
   viewMode: 'grimoire' | 'townsquare';
   onViewModeToggle: () => void;
   onResetGame: () => void;
+  onOpenNewGame: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   edition,
-  onEditionChange,
   playerCount,
-  onPlayerCountChange,
   phase,
   dayNumber,
   onPhaseToggle,
   viewMode,
   onViewModeToggle,
   onResetGame,
+  onOpenNewGame,
 }) => {
+  const getEditionName = (ed: Edition) => {
+    switch (ed) {
+      case 'tb':
+        return 'Trouble Brewing';
+      case 'bmr':
+        return 'Bad Moon Rising';
+      case 'snv':
+        return 'Sects & Violets';
+      case 'custom':
+        return 'Custom Script';
+      default:
+        return 'Standard Script';
+    }
+  };
+
   return (
     <header className="botct-header">
       <div className="botct-header-inner">
@@ -43,38 +56,17 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
+        {/* Current Game Details Pill */}
+        <div className="medieval-badge" title="Active Game Configuration">
+          <span style={{ color: 'var(--color-gold-bright)', fontWeight: 600 }}>
+            {getEditionName(edition)}
+          </span>
+          <span style={{ opacity: 0.5 }}>•</span>
+          <span>{playerCount} Players</span>
+        </div>
+
         {/* Controls */}
         <div className="botct-top-controls">
-          {/* Script Selection */}
-          <div className="medieval-select-group">
-            <span className="medieval-select-label">Script:</span>
-            <select
-              className="medieval-select"
-              value={edition}
-              onChange={(e) => onEditionChange(e.target.value as Edition)}
-            >
-              <option value="tb">Trouble Brewing</option>
-              <option value="bmr">Bad Moon Rising</option>
-              <option value="snv">Sects & Violets</option>
-            </select>
-          </div>
-
-          {/* Player Count */}
-          <div className="medieval-select-group">
-            <span className="medieval-select-label">Townsfolk:</span>
-            <select
-              className="medieval-select"
-              value={playerCount}
-              onChange={(e) => onPlayerCountChange(Number(e.target.value))}
-            >
-              {[7, 8, 9, 10, 11, 12, 13, 14, 15].map((cnt) => (
-                <option key={cnt} value={cnt}>
-                  {cnt} Players
-                </option>
-              ))}
-            </select>
-          </div>
-
           {/* Day / Night Switch */}
           <div className="phase-toggle">
             <button
@@ -106,17 +98,27 @@ export const Header: React.FC<HeaderProps> = ({
             }
           >
             {viewMode === 'grimoire' ? <Eye size={15} /> : <EyeOff size={15} />}
-            <span>{viewMode === 'grimoire' ? 'Storyteller Grimoire' : 'Town Square'}</span>
+            <span>{viewMode === 'grimoire' ? 'Grimoire' : 'Town Square'}</span>
           </button>
 
-          {/* Reset / Re-deal */}
+          {/* Re-deal seats with current config */}
+          <button
+            className="medieval-btn"
+            onClick={onResetGame}
+            title="Re-shuffle and re-deal roles"
+          >
+            <RefreshCw size={13} />
+            <span>Re-deal</span>
+          </button>
+
+          {/* New Game Setup Modal Button */}
           <button
             className="medieval-btn btn-crimson"
-            onClick={onResetGame}
-            title="Randomize and deal a new game configuration"
+            onClick={onOpenNewGame}
+            title="Open New Game Setup Dialog"
           >
-            <RefreshCw size={14} />
-            <span>Re-deal</span>
+            <Sparkles size={14} />
+            <span>New Game</span>
           </button>
         </div>
       </div>

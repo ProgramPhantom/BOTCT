@@ -4,7 +4,11 @@ import { PLAYER_DISTRIBUTIONS, MEDIEVAL_NAMES } from '../types/game';
 
 export const allRoles: CharacterRole[] = rolesData as CharacterRole[];
 
-export function getRolesByEdition(edition: Edition = 'tb'): CharacterRole[] {
+export function getRolesByEdition(edition: Edition = 'tb', customRoleIds?: string[]): CharacterRole[] {
+  if (edition === 'custom' && customRoleIds && customRoleIds.length > 0) {
+    const idSet = new Set(customRoleIds);
+    return allRoles.filter(r => idSet.has(r.id));
+  }
   return allRoles.filter(r => r.edition === edition);
 }
 
@@ -28,8 +32,15 @@ export interface GeneratedGame {
   playerCount: number;
 }
 
-export function generateInitialGame(playerCount: number = 8, edition: Edition = 'tb'): GeneratedGame {
-  const editionRoles = getRolesByEdition(edition);
+export function generateInitialGame(
+  playerCount: number = 8,
+  edition: Edition = 'tb',
+  customRoleIds?: string[]
+): GeneratedGame {
+  let editionRoles = getRolesByEdition(edition, customRoleIds);
+  if (editionRoles.length === 0) {
+    editionRoles = getRolesByEdition('tb');
+  }
   const baseDist = PLAYER_DISTRIBUTIONS[playerCount] || PLAYER_DISTRIBUTIONS[8];
 
   const townsfolkPool = shuffle(editionRoles.filter(r => r.team === 'townsfolk'));

@@ -1,6 +1,12 @@
 export type Team = 'townsfolk' | 'outsider' | 'minion' | 'demon' | 'traveler';
 
-export type Edition = 'tb' | 'bmr' | 'snv';
+export type Edition = 'tb' | 'bmr' | 'snv' | 'custom';
+
+export interface GameConfig {
+  edition: Edition;
+  playerCount: number;
+  customRoleIds?: string[];
+}
 
 export interface CharacterRole {
   id: string;

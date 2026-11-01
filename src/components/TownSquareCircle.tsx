@@ -24,8 +24,8 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
   bluffs,
 }) => {
   const playerCount = seats.length;
-  const radius = 230; // Radius in pixels from center
-  const centerCoord = 300; // Center of 600x600 viewBox/container
+  const radius = 210; // Radius in pixels from center
+  const centerCoord = 260; // Center of 520x520 container
 
   const aliveCount = seats.filter(s => s.isAlive).length;
   const votesNeeded = Math.ceil(aliveCount / 2);
