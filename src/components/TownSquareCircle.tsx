@@ -24,8 +24,8 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
   bluffs,
 }) => {
   const playerCount = seats.length;
-  const radius = 210; // Radius in pixels from center
-  const centerCoord = 260; // Center of 520x520 container
+  const radius = 245; // Expanded radius in pixels from center for more spacing
+  const centerCoord = 285; // Center of 570x570 container
 
   const aliveCount = seats.filter(s => s.isAlive).length;
   const votesNeeded = Math.ceil(aliveCount / 2);
@@ -77,12 +77,19 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
           const isDemon = role?.team === 'demon';
           const teamClass = role?.team || 'townsfolk';
 
+          const tooltipTitle = viewMode === 'grimoire'
+            ? `Seat #${seat.id + 1}: ${role?.name || 'Unknown'} (${role?.team || 'Townsfolk'})\n\n"${role?.ability || ''}"\n\nStatus: ${
+                seat.isAlive ? 'Alive' : 'Dead (Ghost Vote ' + (seat.hasGhostVote ? 'Ready' : 'Spent') + ')'
+              }${seat.isPoisoned ? ' [Poisoned]' : ''}${seat.isDrunk ? ' [Drunk]' : ''}`
+            : `Seat #${seat.id + 1}: Townsperson\nStatus: ${seat.isAlive ? 'Alive' : 'Dead'}`;
+
           return (
             <div
               key={seat.id}
               className={`player-seat-node ${isSelected ? 'selected' : ''}`}
               style={{ left: `${x}px`, top: `${y}px` }}
               onClick={() => onSelectSeat(seat.id)}
+              title={tooltipTitle}
             >
               {/* Token Container */}
               <div
@@ -103,7 +110,6 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
                       : 'none',
                   }}
                   onError={(e) => {
-                    // Fallback to placeholder if specific icon missing
                     (e.target as HTMLImageElement).src = '/assets/icons/imp.png';
                   }}
                 />
@@ -149,14 +155,38 @@ export const TownSquareCircle: React.FC<TownSquareCircleProps> = ({
                 </div>
               </div>
 
-              {/* Player Nameplate */}
-              <div className="seat-nameplate">
-                <span className="seat-player-name">
-                  #{seat.id + 1} {seat.name}
-                </span>
-                <span className="seat-character-name">
-                  {viewMode === 'grimoire' ? role?.name || 'Unknown' : 'Townsperson'}
-                </span>
+              {/* Basic character info hover card */}
+              <div className={`seat-hover-card ${y < 130 ? 'pos-bottom' : 'pos-top'}`}>
+                <div className="seat-hover-header">
+                  <span className="seat-hover-num">Seat #{seat.id + 1}</span>
+                  {viewMode === 'grimoire' && role && (
+                    <span className={`team-pill ${role.team}`}>{role.team}</span>
+                  )}
+                </div>
+                <div className="seat-hover-role-line">
+                  <span className="seat-hover-rolename">
+                    {viewMode === 'grimoire' ? role?.name || 'Unknown' : 'Townsperson'}
+                  </span>
+                </div>
+                {viewMode === 'grimoire' && role?.ability && (
+                  <div className="seat-hover-ability">"{role.ability}"</div>
+                )}
+                <div className="seat-hover-status">
+                  <span style={{ color: seat.isAlive ? '#86efac' : '#f87171' }}>
+                    {seat.isAlive
+                      ? '● Alive'
+                      : `† Dead (Ghost Vote ${seat.hasGhostVote ? 'Ready' : 'Spent'})`}
+                  </span>
+                  {viewMode === 'grimoire' && seat.isPoisoned && (
+                    <span style={{ color: '#4ade80' }}> • Poisoned</span>
+                  )}
+                  {viewMode === 'grimoire' && seat.isDrunk && (
+                    <span style={{ color: '#fed7aa' }}> • Drunk</span>
+                  )}
+                  {seat.isNominated && (
+                    <span style={{ color: '#f87171' }}> • Nominated</span>
+                  )}
+                </div>
               </div>
             </div>
           );

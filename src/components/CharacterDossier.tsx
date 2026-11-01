@@ -138,7 +138,7 @@ export const CharacterDossier: React.FC<CharacterDossierProps> = ({
           <div className="dossier-header-info">
             <h2>{role?.name || seat.characterId}</h2>
             <div style={{ fontFamily: 'var(--font-serif)', fontSize: '0.8rem', color: 'var(--color-parchment)' }}>
-              Player: {seat.name}
+              Seat Position: #{seat.id + 1}
             </div>
             <span className={`team-pill ${role?.team || 'townsfolk'}`}>
               {role?.team || 'Townsfolk'}

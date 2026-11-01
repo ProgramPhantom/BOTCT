@@ -1,6 +1,6 @@
 import rolesData from '../data/roles.json';
 import type { CharacterRole, PlayerSeat, Edition } from '../types/game';
-import { PLAYER_DISTRIBUTIONS, MEDIEVAL_NAMES } from '../types/game';
+import { PLAYER_DISTRIBUTIONS } from '../types/game';
 
 export const allRoles: CharacterRole[] = rolesData as CharacterRole[];
 
@@ -94,7 +94,6 @@ export function generateInitialGame(
 
   const seats: PlayerSeat[] = shuffledRoles.map((role, idx) => ({
     id: idx,
-    name: MEDIEVAL_NAMES[idx % MEDIEVAL_NAMES.length],
     characterId: role.id,
     isAlive: true,
     hasGhostVote: true,

@@ -24,7 +24,6 @@ export interface CharacterRole {
 
 export interface PlayerSeat {
   id: number;
-  name: string;
   characterId: string;
   isAlive: boolean;
   hasGhostVote: boolean;
@@ -57,10 +56,3 @@ export const PLAYER_DISTRIBUTIONS: Record<number, ScriptDistribution> = {
   14: { players: 14, townsfolk: 9, outsiders: 1, minions: 3, demons: 1 },
   15: { players: 15, townsfolk: 9, outsiders: 2, minions: 3, demons: 1 },
 };
-
-export const MEDIEVAL_NAMES = [
-  'Father Thomas', 'Althea the Miller', 'Gilles the Smith', 'Elspeth',
-  'Brother Mark', 'Widow Corva', 'Aldous the Cobbler', 'Bartholomew',
-  'Lady Eleanor', 'Constance the Weaver', 'Roderick the Baker', 'Beatrice',
-  'Godfrey the Fletcher', 'Isolde the Brewer', 'Osric the Cooper'
-];
